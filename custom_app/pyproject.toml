@@ -1,0 +1,26 @@
+[project]
+name = "insurance_crm"
+version = "1.0.0"
+description = "Insurance CRM Customizations - Enterprise Grade"
+authors = [
+    {name = "Vivek Singh", email = "vivek@example.com"}
+]
+requires-python = ">=3.10"
+dependencies = []
+
+[project.optional-dependencies]
+dev = []
+
+[build-system]
+requires = ["flit_core>=3.4"]
+build-backend = "flit_core.buildapi"
+
+[tool.frappe]
+app-title = "Insurance CRM"
+app-publisher = "Vivek Singh"
+app-description = "Enterprise-grade CRM customizations for insurance lead generation"
+app-category = "CRM"
+app-icon = "fa fa-shield"
+app-color = "#2e7d32"
+app-email = "vivek@example.com"
+app-license = "MIT"
