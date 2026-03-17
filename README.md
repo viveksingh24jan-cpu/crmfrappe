@@ -1,4 +1,4 @@
-# Insurance CRM - Enterprise Edition
+# Insurance CRM - Enterprise Edition v2.0
 
 A production-ready, enterprise-grade Frappe CRM customization for insurance lead generation in India. Built with IRDAI compliance in mind.
 
@@ -9,37 +9,32 @@ A production-ready, enterprise-grade Frappe CRM customization for insurance lead
 - **Deal Pipeline** - Visual sales funnel with probabilities
 - **Contact Management** - Customer database with insurance-specific fields
 - **Activity Tracking** - Calls, emails, meetings, tasks
-- **Email Integration** - Built-in email templates
 
-### Custom Fields (Insurance-Specific)
-- **Policy Types**: Motor, Health, Life, Travel, Home, Fire, Marine
-- **Lead Fields**: Vehicle Details, Coverage Amount, Preferred Insurer, Lead Rating
-- **Deal Fields**: Premium Amount, Policy Tenure, Probability %, Expected Close Date
+### Integrations (Open Source)
+- **WhatsApp Business API** - Send quotes, reminders, notifications
+- **SMS (Twilio/Nexmo)** - SMS alerts and updates
+- **Razorpay** - Payment link generation for premium collection
+- **Jitsi Meet** - Video calling for consultations
+- **Chatwoot** - Live chat widget integration
+- **AI Lead Scoring** - Automatic lead scoring based on multiple factors
 
-### Enterprise Features
-
-#### Analytics & Reporting
+### Analytics & Reporting
 - Lead funnel visualization
 - Conversion rate tracking
 - Drop-off analysis by stage
 - Policy type performance
 - Team performance metrics
 - Revenue tracking
+- Real-time dashboard
 
-#### Automation
+### Automation
 - Auto follow-up reminders
 - Lead rating updates
 - Activity logging
-- Email notifications
+- Email/WhatsApp notifications
 - Status change workflows
 
-#### Integrations
-- Email templates ready
-- WhatsApp integration ready
-- SMS gateway ready
-- Document generation
-
-## Quick Setup on New Device
+## Quick Setup
 
 ### Prerequisites
 ```bash
@@ -76,9 +71,6 @@ bench get-app crm https://github.com/frappe/crm.git
 brew services start redis
 brew services start mariadb
 
-# Setup MariaDB root (first time only)
-mariadb -u root -e "SET PASSWORD FOR 'root'@'localhost' = PASSWORD('root'); FLUSH PRIVILEGES;"
-
 # Create site
 bench new-site crm.localhost --mariadb-root-username root --mariadb-root-password root --admin-password admin
 
@@ -94,7 +86,7 @@ bench start
 ```
 
 ### Access
-Add to hosts file (`sudo nano /etc/hosts`):
+Add to hosts file:
 ```
 127.0.0.1 crm.localhost
 ```
@@ -102,56 +94,135 @@ Add to hosts file (`sudo nano /etc/hosts`):
 Visit: http://crm.localhost:8000
 - Username: Administrator
 - Password: admin
-- CRM: http://crm.localhost:8000/app/crm
 
-## Using Analytics API
+## Integration Setup
 
-### Get Lead Funnel
+### WhatsApp Business API
+1. Create WhatsApp Business Account
+2. Get API credentials from Meta Developer Portal
+3. Create "WhatsApp Settings" doctype with:
+   - API URL
+   - API Token
+   - Enable WhatsApp: 1
+
+### SMS (Twilio)
+1. Create Twilio account
+2. Get Account SID, Auth Token, and phone number
+3. Create "SMS Settings" doctype
+
+### Razorpay (India)
+1. Create Razorpay account
+2. Get Key ID and Key Secret
+3. Create "Razorpay Settings" doctype
+
+### Jitsi Meet
+1. Use default meet.jit.si or host your own
+2. Create "Jitsi Settings" doctype
+
+### Chatwoot
+1. Create Chatwoot account
+2. Get Account ID and API Token
+3. Create "Chatwoot Settings" doctype
+
+## Using Integrations
+
+### Send WhatsApp Message
 ```javascript
-// In browser console or via API
 frappe.call({
-    method: "insurance_crm.analytics.get_lead_funnel_data",
+    method: "insurance_crm.integrations.send_whatsapp",
+    args: { phone: "9999999999", message: "Your quote is ready!" }
+});
+```
+
+### Create Payment Link
+```javascript
+frappe.call({
+    method: "insurance_crm.integrations.create_payment_link",
+    args: { 
+        amount: 5000,
+        customer: { name: "John", email: "john@example.com", phone: "9999999999" },
+        description: "Insurance Premium"
+    }
+});
+```
+
+### Create Video Meeting
+```javascript
+frappe.call({
+    method: "insurance_crm.integrations.create_video_meeting",
+    args: { topic: "Policy Discussion" }
+});
+```
+
+### AI Lead Scoring
+```javascript
+frappe.call({
+    method: "insurance_crm.integrations.calculate_lead_score",
+    args: { lead: { lead_rating: "Hot", phone: "9999999999", ... } },
+    callback: function(r) {
+        console.log("Score:", r.message.score); // 0-100
+    }
+});
+
+// Refresh all lead scores
+frappe.call({
+    method: "insurance_crm.integrations.refresh_lead_scores"
+});
+```
+
+## Dashboard API
+
+### Get All Dashboard Data
+```javascript
+frappe.call({
+    method: "insurance_crm.dashboard.get_dashboard_data",
     callback: function(r) {
         console.log(r.message);
     }
 });
 ```
 
-### Get Deal Pipeline
+### Get Kanban Data
 ```javascript
 frappe.call({
-    method: "insurance_crm.analytics.get_deal_pipeline_data",
+    method: "insurance_crm.dashboard.get_kanban_data",
+    args: { doctype: "CRM Lead" },
     callback: function(r) {
         console.log(r.message);
     }
 });
 ```
 
-### Get Performance Metrics
-```javascript
-frappe.call({
-    method: "insurance_crm.analytics.get_performance_metrics",
-    args: { days: 30 },
-    callback: function(r) {
-        console.log(r.message);
-    }
-});
-```
+## Custom Fields
+
+| DocType | Field | Type | Description |
+|---------|-------|------|-------------|
+| CRM Lead | policy_type | Select | Motor/Health/Life/Travel/Home/Fire/Marine |
+| CRM Lead | vehicle_details | Small Text | Vehicle information |
+| CRM Lead | vehicle_number | Data | Registration number |
+| CRM Lead | coverage_amount | Currency | Sum insured |
+| CRM Lead | lead_rating | Select | Hot/Warm/Cold |
+| CRM Lead | follow_up_date | Date | Next follow-up |
+| CRM Lead | whatsapp_opted_in | Check | WhatsApp consent |
+| CRM Deal | premium_amount | Currency | Premium value |
+| CRM Deal | policy_tenure | Int | Years |
+| CRM Deal | deal_probability | Percent | Win probability |
+| CRM Deal | payment_link | Data | Razorpay link |
+| Contact | whatsapp_number | Data | WhatsApp contact |
 
 ## Project Structure
 
 ```
 crmfrappe/
-├── custom_app/                    # Your enterprise customizations
-│   ├── __init__.py
-│   ├── hooks.py                   # App hooks (custom fields, templates)
+├── custom_app/
+│   ├── hooks.py                    # Custom fields, templates, workspace
 │   ├── insurance_crm/
-│   │   ├── __init__.py
-│   │   ├── analytics.py           # Analytics API endpoints
-│   │   └── automation.py          # Workflow automations
-│   ├── apps.txt
-│   └── pyproject.toml
-├── frappe-bench/                  # Local dev (not in git)
+│   │   ├── analytics.py           # Analytics API
+│   │   ├── automation.py          # Workflow automations
+│   │   ├── integrations.py        # WhatsApp, SMS, Payment, Video, AI
+│   │   └── dashboard.py           # Dashboard widgets
+│   └── apps.txt
+├── frappe-bench/                   # Local dev (not in git)
 └── README.md
 ```
 
@@ -159,7 +230,7 @@ crmfrappe/
 
 1. **Lead Status Changes**
    - Auto-create activities on conversion
-   - Send notification emails
+   - Send notification emails/WhatsApp
    - Create follow-up tasks
 
 2. **Deal Status Changes**
@@ -169,19 +240,20 @@ crmfrappe/
 3. **Scheduled Tasks**
    - Follow-up reminders (daily)
    - Overdue lead tracking
-   - Auto-assignment (round-robin)
+   - Auto-assignment
 
-## Enterprise Enhancements Made
+## Enterprise v2.0 New Features
 
-| Feature | Status | Description |
-|---------|--------|-------------|
-| Custom Fields | Done | Insurance-specific fields for leads/deals |
-| Analytics | Done | Funnel, conversion, dropoff, team metrics |
-| Automation | Done | Status changes, reminders, notifications |
-| Email Templates | Done | 3 ready-to-use templates |
-| Contact Fields | Done | DOB, occupation, primary insured |
-| Deal Probability | Done | Win probability tracking |
-| Follow-up Tracking | Done | Date-based reminders |
+- WhatsApp Business integration
+- SMS notifications
+- Razorpay payment links
+- Video calling with Jitsi
+- AI-powered lead scoring
+- Chatwoot live chat
+- Dashboard widgets
+- Custom workspace
+- UTM tracking fields
+- Quote validity tracking
 
 ## License
 MIT
