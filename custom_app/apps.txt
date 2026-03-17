@@ -1,0 +1,10 @@
+{
+	"name": "insurance_crm",
+	"app_name": "insurance_crm",
+	"app_title": "Insurance CRM Customizations",
+	"app_description": "Custom fields for Insurance CRM - Lead Generation",
+	"app_author": "Vivek Singh",
+	"app_email": "vivek@example.com",
+	"app_license": "MIT",
+	"version": "1.0.0"
+}
