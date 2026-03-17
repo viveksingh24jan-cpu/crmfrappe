@@ -11,3 +11,5 @@ crm/www/crm.html
 build
 
 .vscode
+frappe-bench/
+*.log
